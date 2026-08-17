@@ -35,12 +35,8 @@ public class CustomHashMap<K, V> {
         return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
     }
 
-    private int indexMap(int hash, int lenght) {
-        return hash & (lenght - 1);
-    }
-
     public V put(K key, V value) {
-        int index = indexMap(hash(key), table.length);
+        int index = getBucketIndex(hash(key), table.length);
         Node<K, V> head = table[index];
 
         for (Node<K, V> e = head; e != null; e = e.next) {
@@ -62,7 +58,7 @@ public class CustomHashMap<K, V> {
     }
 
     public V get(Object key) {
-        int index = indexMap(hash(key), table.length);
+        int index = getBucketIndex(hash(key), table.length);
 
         for (Node<K, V> e = table[index]; e != null; e = e.next) {
             if ((e.key == null && key == null)
@@ -74,7 +70,7 @@ public class CustomHashMap<K, V> {
     }
 
     public V remove(Object key) {
-        int index = indexMap(hash(key), table.length);
+        int index = getBucketIndex(hash(key), table.length);
 
         Node<K, V> head = table[index];
         Node<K, V> prev = null;
@@ -110,13 +106,17 @@ public class CustomHashMap<K, V> {
             Node<K, V> node = table[i];
             while (node != null) {
                 Node<K, V> next = node.next;
-                int newIndex = indexMap(hash(node.key), newCapacity);
+                int newIndex = getBucketIndex(hash(node.key), newCapacity);
                 node.next = newTable[newIndex];
                 newTable[newIndex] = node;
                 node = next;
             }
         }
         table = newTable;
+    }
+
+    private int getBucketIndex(int hash, int length) {
+        return hash & (length - 1);
     }
 
     private static class Node<K, V> {
